@@ -7,14 +7,16 @@ app.on("window-all-closed", function() {
 });
 
 var mainWindow = null;
+var resultWindow = null;
 var dialog = require("dialog");
+var ipc = require("ipc");
 
 app.on("ready", function() {
 	mainWindow = new BrowserWindow({
 		width: 650,
 		height: 350,
 		center: true,
-		resizable: true,
+		resizable: false,
 		frame: true,
 	});
 
@@ -22,6 +24,26 @@ app.on("ready", function() {
 	var homepageUrl = "file://" + __dirname + "/index.html";
 	mainWindow.loadUrl(homepageUrl);
 //	mainWindow.openDevTools();
+
+	ipc.on("samefield", function(evt, args) {
+		resultWindow = new BrowserWindow({
+			width: 800,
+			height: 600,
+			resizable: true
+		});
+
+		var samefields = args.data;
+		resultWindow.webContents.on("did-finish-load", function() {
+			resultWindow.webContents.send("result-data", {
+				data: samefields
+			});
+		});
+
+		resultWindow.loadUrl("file://" + __dirname + "/result.html");
+		// resultWindow.openDevTools();
+
+	});
+
 
 	var closeWindowHandler = function(e) {
 		e.preventDefault();

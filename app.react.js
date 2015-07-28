@@ -1,14 +1,15 @@
 var xlsx = require("xlsx");
 var fs = require("fs");
+var ipc = require("ipc");
 
 var App = React.createClass({
 	getInitialState: function() {
 		return {
 			originalFilePath: "",
-			originalFile: [],
+			// originalFilePath: "/Users/vic/rdss/file-diff/tests/權益組屆退.xls",
 			originalFileHeaders: [],
 			currentFilePath: "",
-			currentFile: [],
+			// currentFilePath: "/Users/vic/rdss/file-diff/tests/主計屆退.xls",
 			currentFileHeaders: [],
 			sameFileHeaders: []
 		};
@@ -21,10 +22,15 @@ var App = React.createClass({
 	handleOnDrop: function(stateKey, e) {
 		e.preventDefault();
 		var file = e.dataTransfer.files[0];
-		var state = {}
-		state[stateKey] = file.path;
-		file = xlsx.readFile(file.path);
-		this.toJson(file, stateKey);
+
+		this.handleReadFile(stateKey, file.path);
+	},
+
+	handleReadFile: function(stateKey, file_path) {
+		var state = {};
+		state[stateKey] = file_path;
+		parsedFile = xlsx.readFile(file_path);
+		this.toJson(parsedFile, stateKey);
 		this.setState(state);
 	},
 
@@ -61,18 +67,41 @@ var App = React.createClass({
 
 		OriginalFileNode.addEventListener("drop", this.handleOnDrop.bind(this, "originalFilePath"));
 		CurrentFileNode.addEventListener("drop", this.handleOnDrop.bind(this, "currentFilePath"));
+
+		OriginalFileNode.addEventListener("click", this.handleSelectCurrentFile.bind(this, "originalFilePath"));
+		CurrentFileNode.addEventListener("click", this.handleSelectCurrentFile.bind(this, "currentFilePath"));
 	},
 
 	handleReset: function() {
 		this.setState({
 			originalFilePath: "",
-			originalFile: [],
 			originalFileHeaders: [],
 			currentFilePath: "",
-			currentFile: [],
 			currentFileHeaders: [],
 			sameFileHeaders: []
 		});
+	},
+
+	handleSelectCurrentFile: function(stateKey, e) {
+		var remote = require("remote"),
+				dialog = remote.require("dialog"),
+				currentWindow = remote.getCurrentWindow();
+
+		dialog.showOpenDialog(
+			currentWindow,
+			{
+				title: "Navigate to file",
+				properties: ["openDirectory", "openFile"],
+				filters: [
+					{ name: 'SpreadSheet File', extensions: ['xls', 'xlsx']}
+				]
+			},
+			function(filename) {
+				if (filename) {
+					this.handleReadFile(stateKey, filename[0]);
+				}
+			}.bind(this)
+		);
 	},
 
 	compareFiles: function() {
@@ -89,7 +118,11 @@ var App = React.createClass({
 			});
 		});
 
-		console.log(sFileHeaders);
+		ipc.send("samefield", {
+			signal: "openNewWindow",
+			data: sFileHeaders
+		});
+
 		this.setState({sameFileHeaders: sFileHeaders});
 	},
 
@@ -109,12 +142,10 @@ var App = React.createClass({
 					{this.state.originalFilePath}
 				</div>
 
-
 				<div ref="CurrentFile" id="crfile">
 					<strong>Current File Drag Here</strong><br/>
 					{this.state.currentFilePath}
 				</div>
-
 
 			</div>
 		);
