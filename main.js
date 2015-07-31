@@ -23,27 +23,50 @@ app.on("ready", function() {
 	mainWindow.setMenu(null);
 	var homepageUrl = "file://" + __dirname + "/index.html";
 	mainWindow.loadUrl(homepageUrl);
-//	mainWindow.openDevTools();
+	// mainWindow.openDevTools();
 
-	ipc.on("samefield", function(evt, args) {
-		resultWindow = new BrowserWindow({
-			width: 800,
-			height: 600,
-			resizable: true
-		});
+
+	ipc.on("sameField", function(evt, args) {
+
+		if (!resultWindow) {
+			resultWindow = new BrowserWindow({
+				width: 1000,
+				height: 600,
+				resizable: true,
+			});
+		}
 
 		var samefields = args.data;
+
 		resultWindow.webContents.on("did-finish-load", function() {
-			resultWindow.webContents.send("result-data", {
+			resultWindow.webContents.send("sameField", {
 				data: samefields
 			});
 		});
 
 		resultWindow.loadUrl("file://" + __dirname + "/result.html");
-		// resultWindow.openDevTools();
+		resultWindow.openDevTools();
 
+		resultWindow.on("closed", function() {
+			console.log("resultWindow has been closed.");
+			resultWindow = null;
+		});
 	});
 
+	ipc.on("compareRequest", function(evt, args) {
+		mainWindow.webContents.send("compareRequest", {
+			data: args.data
+		});
+	});
+
+	ipc.on("diffRecords", function(evt, args) {
+		var diffRecords = args.data;
+
+		resultWindow.webContents.send("diffRecords", {
+			data: diffRecords
+		});
+
+	});
 
 	var closeWindowHandler = function(e) {
 		e.preventDefault();
@@ -57,6 +80,9 @@ app.on("ready", function() {
 			},
 			function(response) {
 				if (response == 0) {
+					if (resultWindow) {
+						resultWindow.close();
+					}
 					mainWindow.removeListener("close", closeWindowHandler);
 					setTimeout(mainWindow.close.bind(mainWindow), 0);
 				}
@@ -65,7 +91,9 @@ app.on("ready", function() {
 	};
 	mainWindow.on("close", closeWindowHandler);
 
+
 	mainWindow.on("closed", function() {
 		mainWindow = null;
+		resultWindow = null;
 	});
 });
