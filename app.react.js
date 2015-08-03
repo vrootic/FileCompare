@@ -142,7 +142,7 @@ var App = React.createClass({
 				dialog.showMessageBox(
 					currentWindow,
 					{
-						title: "Warnging",
+						title: "Warning",
 						message: "沒有選取身分證字號欄位以供比對",
 						type: "warning",
 						buttons: ["了解"],
