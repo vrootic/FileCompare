@@ -130,8 +130,9 @@ var App = React.createClass({
 
 		ipc.once("compareRequest", function(args) {
 			var targetFields = args.data;
-			var originalRecords = [];
-			var currentRecords = [];
+			var originalRecords = {};
+			var currentRecords = {};
+			var diffRecords = [];
 
 			if (targetFields.indexOf("身分證字號") == -1) {
 				var remote = require("remote"),
@@ -141,7 +142,7 @@ var App = React.createClass({
 				dialog.showMessageBox(
 					currentWindow,
 					{
-						title: "Warnging",
+						title: "Warning",
 						message: "沒有選取身分證字號欄位以供比對",
 						type: "warning",
 						buttons: ["了解"],
@@ -150,85 +151,44 @@ var App = React.createClass({
 
 					}
 				);
-				// return;
+				return;
 			}
 			else {
 				var pivotIndex = targetFields.indexOf("身分證字號");
 				if (pivotIndex != 0) {
 					targetFields.splice(pivotIndex, 1);
+					// insert 身分證字號 into the first element
 					targetFields.unshift("身分證字號")
 				}
 
 			}
 
 			originalFile.forEach(function(oRecord) {
-				var record = {};
-				targetFields.forEach(function(field) {
-					if (oRecord[field]) {
-						record[field] = oRecord[field].replace(',', '');
-					}
-					else {
-						console.log(oRecord + " " + field);
-					}
-				});
-				originalRecords.push(record);
+				var key = oRecord[ targetFields[0] ];
+				var value = [];
+				for (var i = 1; i < targetFields.length; i++) {
+					value.push(oRecord[ targetFields[i] ].replace(',', ''));
+				}
+				originalRecords[key] = value;
 			});
 
 			currentFile.forEach(function(cRecord) {
+				var key = cRecord[ targetFields[0] ];
+				var value = [];
+				for (var i = 1; i < targetFields.length; i++) {
+					value.push(cRecord[ targetFields[i] ].replace(',', ''));
+				}
+
 				var record = {};
-				targetFields.forEach(function(field) {
-					if (cRecord[field]) {
-						record[field] = cRecord[field].replace(',', '');
-					}
-					else {
-						console.log(cRecord + " " + field);
+				record[ targetFields[0] ] = key;
+				if (originalRecords[key] == undefined) {
+					for (var i = 1; i < targetFields.length; i++){
+						record[targetFields[i]] = value[i-1];
 					}
 				});
 				currentRecords.push(record);
 			});
 
-			var diffRecords = [];
-			var recordLen = originalRecords.length < currentRecords.length ? originalRecords.length : currentRecords.length;
-			for (var i = 0; i < recordLen; i++) {
-				for (var j = 0; j < recordLen; j++) {
-					if (originalRecords[i][targetFields[0]] == currentRecords[j][targetFields[0]]) {
-						console.log(originalRecords[i][targetFields[0]]
-							+ " " + originalRecords[i][targetFields[1]]
-							+ " " + currentRecords[j][targetFields[0]]
-							+ " " + currentRecords[j][targetFields[1]]
-						);
-
-						for (var k = 1; k < targetFields.length; k++) {
-							if (originalRecords[i][targetFields[k]] != currentRecords[j][targetFields[k]]) {
-								diffRecords.push(originalRecords[i]);
-							}
-						}
-						break;
-					}
-					else if (j == recordLen - 1) {
-						diffRecords.push(originalRecords[i]);
-					}
-				}
-			}
-
-			// if (recordLen == originalRecords.length) {
-			// 	for (var i = 0; i < currentRecords.length; i++) {
-			// 		for (var j = 0; j < recordLen; j++) {
-			// 			if (j == recordLen - 1 && originalRecords[j] != currentRecords[i]) {
-			// 				diffRecords.push(currentRecords[i]);
-			// 			}
-			// 		}
-			// 	}
-			// }
-			// else {
-			// 	for (var i = 0; i < originalRecords.length; i++) {
-			// 		for (var j = 0; j < recordLen; j++) {
-			// 			if (j == recordLen - 1 && originalRecords[i] != currentRecords[j]) {
-			// 				diffRecords.push(originalRecords[i]);
-			// 			}
-			// 		}
-			// 	}
-			// }
 
 			ipc.send("diffRecords", {
 				data: diffRecords
