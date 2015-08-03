@@ -94,7 +94,7 @@ var App = React.createClass({
 			currentWindow,
 			{
 				title: "Navigate to file",
-				properties: ["openDirectory", "openFile"],
+				properties: ["openFile"],
 				filters: [
 					{ name: 'SpreadSheet File', extensions: ['xls', 'xlsx']}
 				]
@@ -187,11 +187,9 @@ var App = React.createClass({
 				currentRecords.push(record);
 			});
 
-
-			var i = 0;
 			var diffRecords = [];
 			var recordLen = originalRecords.length < currentRecords.length ? originalRecords.length : currentRecords.length;
-			for (i = 0; i < recordLen; i++) {
+			for (var i = 0; i < recordLen; i++) {
 				for (var j = 0; j < recordLen; j++) {
 					if (originalRecords[i][targetFields[0]] == currentRecords[j][targetFields[0]]) {
 						console.log(originalRecords[i][targetFields[0]]
@@ -205,20 +203,32 @@ var App = React.createClass({
 								diffRecords.push(originalRecords[i]);
 							}
 						}
+						break;
+					}
+					else if (j == recordLen - 1) {
+						diffRecords.push(originalRecords[i]);
 					}
 				}
+			}
 
-			}
-			if (recordLen == originalRecords.length) {
-				for(var j = i; j < currentRecords.length; j++) {
-					diffRecords.push(currentRecords[j]);
-				}
-			}
-			else {
-				for(var j = i; j < originalRecords.length; j++) {
-					diffRecords.push(originalRecords[j]);
-				}
-			}
+			// if (recordLen == originalRecords.length) {
+			// 	for (var i = 0; i < currentRecords.length; i++) {
+			// 		for (var j = 0; j < recordLen; j++) {
+			// 			if (j == recordLen - 1 && originalRecords[j] != currentRecords[i]) {
+			// 				diffRecords.push(currentRecords[i]);
+			// 			}
+			// 		}
+			// 	}
+			// }
+			// else {
+			// 	for (var i = 0; i < originalRecords.length; i++) {
+			// 		for (var j = 0; j < recordLen; j++) {
+			// 			if (j == recordLen - 1 && originalRecords[i] != currentRecords[j]) {
+			// 				diffRecords.push(originalRecords[i]);
+			// 			}
+			// 		}
+			// 	}
+			// }
 
 			ipc.send("diffRecords", {
 				data: diffRecords
