@@ -94,7 +94,7 @@ var App = React.createClass({
 			currentWindow,
 			{
 				title: "Navigate to file",
-				properties: ["openDirectory", "openFile"],
+				properties: ["openFile"],
 				filters: [
 					{ name: 'SpreadSheet File', extensions: ['xls', 'xlsx']}
 				]
@@ -185,21 +185,8 @@ var App = React.createClass({
 					for (var i = 1; i < targetFields.length; i++){
 						record[targetFields[i]] = value[i-1];
 					}
-					diffRecords.push(record);
-				}
-				else {
-					var originalValue = originalRecords[key];
-					value.forEach(function(v) {
-						if (-1 === originalValue.indexOf(v)) {
-							for (var i = 1; i < targetFields.length; i++){
-								record[ targetFields[i] ] = value[i-1];
-							}
-							diffRecords.push(record);
-						}
-					});
-				}
-				console.log(record[ targetFields[0] ] + " " + record[ targetFields[1] ]);
-
+				});
+				currentRecords.push(record);
 			});
 
 

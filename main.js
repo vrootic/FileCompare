@@ -13,8 +13,8 @@ var ipc = require("ipc");
 
 app.on("ready", function() {
 	mainWindow = new BrowserWindow({
-		width: 650,
-		height: 350,
+		width: 700,
+		height: 400,
 		center: true,
 		resizable: false,
 		frame: true,
