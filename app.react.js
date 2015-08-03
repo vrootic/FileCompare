@@ -94,7 +94,7 @@ var App = React.createClass({
 			currentWindow,
 			{
 				title: "Navigate to file",
-				properties: ["openDirectory", "openFile"],
+				properties: ["openFile"],
 				filters: [
 					{ name: 'SpreadSheet File', extensions: ['xls', 'xlsx']}
 				]
