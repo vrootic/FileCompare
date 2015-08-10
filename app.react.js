@@ -160,14 +160,17 @@ var App = React.createClass({
 					// insert 身分證字號 into the first element
 					targetFields.unshift("身分證字號")
 				}
-
+				targetFields.push("原因");
 			}
 
+			// {ID: [value1, value2, ...]}
 			originalFile.forEach(function(oRecord) {
 				var key = oRecord[ targetFields[0] ];
 				var value = [];
 				for (var i = 1; i < targetFields.length; i++) {
-					value.push(oRecord[ targetFields[i] ].replace(',', ''));
+					if (oRecord[targetFields[i]]) {
+						value.push(oRecord[ targetFields[i] ].replace(',', ''));
+					}
 				}
 				originalRecords[key] = value;
 			});
@@ -176,14 +179,21 @@ var App = React.createClass({
 				var key = cRecord[ targetFields[0] ];
 				var value = [];
 				for (var i = 1; i < targetFields.length; i++) {
-					value.push(cRecord[ targetFields[i] ].replace(',', ''));
+					if (cRecord[targetFields[i]]) {
+						value.push(cRecord[ targetFields[i] ].replace(',', ''));
+					}
 				}
 
 				var record = {};
 				record[ targetFields[0] ] = key;
 				if (originalRecords[key] == undefined) {
 					for (var i = 1; i < targetFields.length; i++){
-						record[targetFields[i]] = value[i-1];
+						if (i == targetFields.length - 1) {
+							record[targetFields[i]] = "比對檔身分證字號尚未出現在原始檔中";
+						}
+						else {
+							record[targetFields[i]] = value[i-1];
+						}
 					}
 					diffRecords.push(record);
 				}
@@ -192,19 +202,25 @@ var App = React.createClass({
 					value.forEach(function(v) {
 						if (-1 === originalValue.indexOf(v)) {
 							for (var i = 1; i < targetFields.length; i++){
-								record[ targetFields[i] ] = value[i-1];
+								if (i == targetFields.length - 1){
+									record[targetFields[i]] = "比對檔欄位" + targetFields[i-1] + "不同";
+								}
+								else {
+									record[ targetFields[i] ] = value[i-1];
+								}
 							}
 							diffRecords.push(record);
 						}
 					});
 				}
-				console.log(record[ targetFields[0] ] + " " + record[ targetFields[1] ]);
+				console.log(record[ targetFields[0] ] + " " + record[ targetFields[1] ] + " " + record[targetFields[2]]);
 
 			});
-
+		
 
 			ipc.send("diffRecords", {
-				data: diffRecords
+				data: diffRecords,
+				fields: targetFields
 			});
 
 		});

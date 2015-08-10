@@ -61,9 +61,11 @@ app.on("ready", function() {
 
 	ipc.on("diffRecords", function(evt, args) {
 		var diffRecords = args.data;
+		var targetFields = args.fields;
 
 		resultWindow.webContents.send("diffRecords", {
-			data: diffRecords
+			data: diffRecords,
+			fields: targetFields
 		});
 
 	});

@@ -19,7 +19,7 @@ var App = React.createClass({
 
     ipc.on("diffRecords", function(args) {
       console.log("diffRecords received from resultWindow");
-      this.setState({diffRecords: args.data});
+      this.setState({diffRecords: args.data, targetFields: args.fields});
       // console.log(args.data);
     }.bind(this));
 
@@ -72,7 +72,7 @@ var App = React.createClass({
     filename = 'export.csv';
 
     if (!csvContent.match(/^data:text\/csv/i)) {
-        csvContent = 'data:text/csv;charset=window-1252,' + csvContent;
+        csvContent = 'data:text/csv;charset=windows-1252,' + csvContent;
     }
     data = encodeURI(csvContent);
 
@@ -100,7 +100,7 @@ var App = React.createClass({
           Number of different Records: {this.state.diffRecords.length}
           <table>
             <thead>
-              {this.state.sameFields.map(function(field){
+              {this.state.targetFields.map(function(field){
                 return (
                   <td>{field}</td>
                 );
@@ -110,7 +110,7 @@ var App = React.createClass({
               {this.state.diffRecords.map(function(record){
                 return (
                   <tr>
-                    {this.state.sameFields.map(function(field){
+                    {this.state.targetFields.map(function(field){
                       return (
                         <td>{record[field]}</td>
                       );
