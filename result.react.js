@@ -1,4 +1,6 @@
 var ipc = require("ipc");
+var xlsx = require("xlsx");
+var fs = require("fs");
 var App = React.createClass({
   getInitialState: function() {
 		return {
@@ -44,8 +46,31 @@ var App = React.createClass({
     });
   },
 
+  exportCsv: function() {
+    var data = this.state.diffRecords;
+    var csvContent = "data:text/csv;charset=utf-8,";
+    var fieldsLength = this.state.sameFields.length;
+    var fields = this.state.targetFields
+    // this.state.sameFields.forEach(function(field){
+    //   var dataString = field + ",";
+    //   csvContent += dataString;
+    // });
+    // csvContent += "\n";
+    data.forEach(function(infoArray, index){
+      var dataString = "";
+      fields.forEach(function(field){
+        dataString += JSON.stringify(infoArray[field]) + ",";
+      });
+      csvContent += index < data.length ? dataString + "\n": dataString;
+    });
+    var encodeUri = encodeURI(csvContent);
+    window.open(encodeUri);
+
+  },
+
   render: function() {
     return (
+
       <div>
         <strong>Result Page</strong>
         <div>
@@ -55,7 +80,9 @@ var App = React.createClass({
             }.bind(this))}
           </ul>
           <button id="goCompare" onClick={this.sendCompareRequest}>Go</button>
+          <button id="exportCsv" onClick={this.exportCsv}>Export</button>
           <br/>
+          Number of different Records: {this.state.diffRecords.length}
           <table>
             <thead>
               {this.state.sameFields.map(function(field){
