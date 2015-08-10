@@ -47,24 +47,39 @@ var App = React.createClass({
   },
 
   exportCsv: function() {
+    var csvContent = "";
+    var fields = this.state.targetFields;
     var data = this.state.diffRecords;
-    var csvContent = "data:text/csv;charset=utf-8,";
-    var fieldsLength = this.state.sameFields.length;
-    var fields = this.state.targetFields
-    // this.state.sameFields.forEach(function(field){
-    //   var dataString = field + ",";
-    //   csvContent += dataString;
-    // });
-    // csvContent += "\n";
-    data.forEach(function(infoArray, index){
-      var dataString = "";
+
+    var columnDelimiter = ",";
+    var lineDelimiter = "\n";
+
+    csvContent += fields.join(columnDelimiter);
+    csvContent += lineDelimiter;
+
+    data.forEach(function(item){
+      ctr = 0;
       fields.forEach(function(field){
-        dataString += JSON.stringify(infoArray[field]) + ",";
+        if (ctr > 0) {
+          csvContent += columnDelimiter;
+        }
+        csvContent += item[field];
+        ctr++;
       });
-      csvContent += index < data.length ? dataString + "\n": dataString;
+      csvContent += lineDelimiter;
     });
-    var encodeUri = encodeURI(csvContent);
-    window.open(encodeUri);
+    console.log(csvContent);
+    filename = 'export.csv';
+
+    if (!csvContent.match(/^data:text\/csv/i)) {
+        csvContent = 'data:text/csv;charset=window-1252,' + csvContent;
+    }
+    data = encodeURI(csvContent);
+
+    link = document.createElement('a');
+    link.setAttribute('href', data);
+    link.setAttribute('download', filename);
+    link.click();
 
   },
 
