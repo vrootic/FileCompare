@@ -188,12 +188,12 @@ var App = React.createClass({
 				record[ targetFields[0] ] = key;
 				if (originalRecords[key] == undefined) {
 					for (var i = 1; i < targetFields.length; i++){
-						if (i == targetFields.length - 1) {
-							record[targetFields[i]] = "比對檔身分證字號尚未出現在原始檔中";
-						}
-						else {
+						// if (i == targetFields.length - 1) {
+						// 	record[targetFields[i]] = "比對檔身分證字號尚未出現在原始檔中";
+						// }
+						// else {
 							record[targetFields[i]] = value[i-1];
-						}
+						// }
 					}
 					diffRecords.push(record);
 				}
@@ -202,21 +202,21 @@ var App = React.createClass({
 					value.forEach(function(v) {
 						if (-1 === originalValue.indexOf(v)) {
 							for (var i = 1; i < targetFields.length; i++){
-								if (i == targetFields.length - 1){
-									record[targetFields[i]] = "比對檔欄位" + targetFields[i-1] + "不同";
-								}
-								else {
+								// if (i == targetFields.length - 1){
+								// 	record[targetFields[i]] = "比對檔欄位" + targetFields[i-1] + "不同";
+								// }
+								// else {
 									record[ targetFields[i] ] = value[i-1];
-								}
+								// }
 							}
 							diffRecords.push(record);
 						}
 					});
 				}
-				console.log(record[ targetFields[0] ] + " " + record[ targetFields[1] ] + " " + record[targetFields[2]]);
+				console.log(record[ targetFields[0] ] + " " + record[ targetFields[1] ]);
 
 			});
-		
+
 
 			ipc.send("diffRecords", {
 				data: diffRecords,

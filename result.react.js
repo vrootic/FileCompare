@@ -54,8 +54,8 @@ var App = React.createClass({
     var columnDelimiter = ",";
     var lineDelimiter = "\n";
 
-    csvContent += fields.join(columnDelimiter);
-    csvContent += lineDelimiter;
+    // csvContent += fields.join(columnDelimiter);
+    // csvContent += lineDelimiter;
 
     data.forEach(function(item){
       ctr = 0;
@@ -71,10 +71,14 @@ var App = React.createClass({
     console.log(csvContent);
     filename = 'export.csv';
 
+    var textEncoder = new TextEncoder("utf-8");
+    // var csvContentEncoded = textEncoder.encode(csvContent);
+
+
     if (!csvContent.match(/^data:text\/csv/i)) {
-        csvContent = 'data:text/csv;charset=windows-1252,' + csvContent;
+        csvContent = 'data:text/csv;charset=utf-8,' + csvContent;
     }
-    data = encodeURI(csvContent);
+    data = encodeURI(new TextDecoder("utf-8").decode(textEncoder.encode(csvContent)));
 
     link = document.createElement('a');
     link.setAttribute('href', data);
