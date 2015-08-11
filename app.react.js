@@ -123,6 +123,8 @@ var App = React.createClass({
 			});
 		});
 
+		this.setState({sameFileHeaders: sFileHeaders});
+
 		ipc.send("sameField", {
 			signal: "openNewWindow",
 			data: sFileHeaders,
@@ -164,59 +166,74 @@ var App = React.createClass({
 			}
 
 			// {ID: [value1, value2, ...]}
-			originalFile.forEach(function(oRecord) {
-				var key = oRecord[ targetFields[0] ];
-				var value = [];
-				for (var i = 1; i < targetFields.length; i++) {
-					if (oRecord[targetFields[i]]) {
-						value.push(oRecord[ targetFields[i] ].replace(',', ''));
-					}
-				}
-				originalRecords[key] = value;
-			});
-
-			currentFile.forEach(function(cRecord) {
-				var key = cRecord[ targetFields[0] ];
-				var value = [];
-				for (var i = 1; i < targetFields.length; i++) {
-					if (cRecord[targetFields[i]]) {
-						value.push(cRecord[ targetFields[i] ].replace(',', ''));
-					}
-				}
-
-				var record = {};
-				record[ targetFields[0] ] = key;
-				if (originalRecords[key] == undefined) {
-					for (var i = 1; i < targetFields.length; i++){
-						// if (i == targetFields.length - 1) {
-						// 	record[targetFields[i]] = "比對檔身分證字號尚未出現在原始檔中";
-						// }
-						// else {
-							record[targetFields[i]] = value[i-1];
-						// }
-					}
-					diffRecords.push(record);
-				}
-				else {
-					var originalValue = originalRecords[key];
-					value.forEach(function(v) {
-						if (-1 === originalValue.indexOf(v)) {
-							for (var i = 1; i < targetFields.length; i++){
-								// if (i == targetFields.length - 1){
-								// 	record[targetFields[i]] = "比對檔欄位" + targetFields[i-1] + "不同";
-								// }
-								// else {
-									record[ targetFields[i] ] = value[i-1];
-								// }
-							}
-							diffRecords.push(record);
+			function buildHash(records, resultRecords) {
+				records.forEach(function(record){
+					var key = record[ targetFields[0] ];
+					var value = [];
+					// index 0 is reserved for ID, so it begins with index 1
+					for (var i = 1; i < targetFields.length; i++) {
+						if (record[ targetFields[i] ]) {
+							value.push(record[ targetFields[i] ].replace(',', ''));
 						}
-					});
+					}
+					resultRecords[key] = value;
+				});
+			};
+			buildHash(originalFile, originalRecords);
+			buildHash(currentFile, currentRecords);
+
+			for (var oRecordKey in originalRecords) {
+				if (currentRecords[oRecordKey] == undefined) {
+					var record = {};
+					for (var i = 0; i < originalFile.length; i++) {
+						if (originalFile[i][targetFields[0]] == oRecordKey) {
+							record = originalFile[i];
+							record[targetFields[targetFields.length - 1]] = "原始檔中此筆在比對檔中找不到";
+							diffRecords.push(record);
+							break;
+						}
+					}
 				}
-				console.log(record[ targetFields[0] ] + " " + record[ targetFields[1] ]);
+			}
 
+			for (var cRecordKey in currentRecords) {
+				if (originalRecords[cRecordKey] == undefined) {
+					var record = {};
+					for (var i = 0; i < currentFile.length; i++) {
+						if (currentFile[i][targetFields[0]] == cRecordKey) {
+							record = currentFile[i];
+							record[targetFields[targetFields.length - 1]] = "比對檔中此筆在原始檔中找不到";
+							diffRecords.push(record);
+							break;
+						}
+					}
+				}
+			}
+
+			for (var oRecordKey in originalRecords) {
+				for (var cRecordKey in currentRecords) {
+					var record = {};
+					if (oRecordKey == cRecordKey) {
+						var currentValue = currentRecords[oRecordKey];
+						var originalValue = originalRecords[oRecordKey];
+						record[targetFields[0]] = oRecordKey;
+						originalValue.forEach(function(v){
+							if ( -1 === currentValue.indexOf(v) ) {
+								for (var i = 1; i < targetFields.length - 1; i++) {
+									record[targetFields[i]] = originalValue[i-1];
+								}
+								record[targetFields[targetFields.length - 1]] = "比對欄位不相同";
+								diffRecords.push(record);
+							}
+						});
+						break;
+					}
+				}
+			}
+
+			diffRecords.forEach(function(record) {
+				console.log(record);
 			});
-
 
 			ipc.send("diffRecords", {
 				data: diffRecords,
@@ -224,8 +241,6 @@ var App = React.createClass({
 			});
 
 		});
-
-		this.setState({sameFileHeaders: sFileHeaders});
 	},
 
 	render: function() {
