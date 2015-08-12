@@ -54,8 +54,8 @@ var App = React.createClass({
     var columnDelimiter = ",";
     var lineDelimiter = "\n";
 
-    // csvContent += fields.join(columnDelimiter);
-    // csvContent += lineDelimiter;
+    csvContent += fields.join(columnDelimiter);
+    csvContent += lineDelimiter;
 
     data.forEach(function(item){
       ctr = 0;
@@ -70,20 +70,25 @@ var App = React.createClass({
     });
     console.log(csvContent);
     filename = 'export.csv';
+    
+    xlsx.writeFile(csvContent, "out.xlsx");
+    // var textEncoder = new TextEncoder("utf-8");
+    //
+    // if (!csvContent.match(/^data:text\/csv/i)) {
+    //     csvContent = 'data:text/csv;charset=utf-8,' + csvContent;
+    // }
+    // data = encodeURI(new TextDecoder("utf-8").decode(textEncoder.encode(csvContent)));
 
-    var textEncoder = new TextEncoder("utf-8");
-    // var csvContentEncoded = textEncoder.encode(csvContent);
 
+    // link = document.createElement('a');
+    // link.setAttribute('href', data);
+    // link.setAttribute('download', filename);
+    // link.click();
 
-    if (!csvContent.match(/^data:text\/csv/i)) {
-        csvContent = 'data:text/csv;charset=utf-8,' + csvContent;
-    }
-    data = encodeURI(new TextDecoder("utf-8").decode(textEncoder.encode(csvContent)));
-
-    link = document.createElement('a');
-    link.setAttribute('href', data);
-    link.setAttribute('download', filename);
-    link.click();
+    // fs.writeFile(filename, csvContent, function(err) {
+    //   if (err) throw err;
+    //   console.log("It's saved.");
+    // });
 
   },
 

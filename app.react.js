@@ -166,7 +166,7 @@ var App = React.createClass({
 			}
 
 			// {ID: [value1, value2, ...]}
-			function buildHash(records, resultRecords) {
+			function buildHash(records, resultRecords, inputFlag) {
 				records.forEach(function(record){
 					var key = record[ targetFields[0] ];
 					var value = [];
@@ -176,11 +176,30 @@ var App = React.createClass({
 							value.push(record[ targetFields[i] ].replace(',', ''));
 						}
 					}
-					resultRecords[key] = value;
+					if (!resultRecords[key]) {
+						resultRecords[key] = value;
+					}
+					else {
+						var diffRecord = {};
+						for (var j = 0; j < records.length; j++) {
+							if (records[j][targetFields[0]] == key) {
+								diffRecord = records[j];
+								break;
+							}
+						}
+						console.log(diffRecord);
+						if (inputFlag == 0) {
+							diffRecord[targetFields[targetFields.length - 1]] = "原始檔中此筆重複出現";
+						}
+						else {
+							diffRecord[targetFields[targetFields.length - 1]] = "比對檔中此筆重複出現";
+						}
+						diffRecords.push(diffRecord);
+					}
 				});
 			};
-			buildHash(originalFile, originalRecords);
-			buildHash(currentFile, currentRecords);
+			buildHash(originalFile, originalRecords, 0); // inputFlag = 0
+			buildHash(currentFile, currentRecords, 1); // inputFlag = 1
 
 			for (var oRecordKey in originalRecords) {
 				if (currentRecords[oRecordKey] == undefined) {

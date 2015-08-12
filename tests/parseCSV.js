@@ -1,9 +1,12 @@
 var xlsx = require("xlsx");
 
-var originalFile = xlsx.readFile("104年5月份第2階段期滿役男薪資發放明細.xls");
+var workbook = xlsx.readFile("主計屆退.xls");
 
-var result = xlsx.utils.sheet_to_json(originalFile.Sheets[originalFile.SheetNames[0]]);
-
-result.map(function(row) {
-  console.log(row["身分證字號"]);
-});
+var result = xlsx.utils.sheet_to_json(workbook);
+if (result) {
+  console.log(result);
+}
+else {
+  console.log("not exist");
+}
+//xlsx.writeFile(result, "out.csv");
