@@ -45,7 +45,7 @@ app.on("ready", function() {
 		});
 
 		resultWindow.loadUrl("file://" + __dirname + "/result.html");
-		resultWindow.openDevTools();
+		// resultWindow.openDevTools();
 
 		resultWindow.on("closed", function() {
 			console.log("resultWindow has been closed.");

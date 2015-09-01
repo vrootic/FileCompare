@@ -89,41 +89,52 @@ var App = React.createClass({
   render: function() {
     return (
 
-      <div>
-        <strong>Result Page</strong>
-        <div>
-          <ul>
-            {this.state.sameFields.map(function(field){
-              return(<li><input type="checkbox" value={field} onChange={this.handleChange}/>{field}</li>);
-            }.bind(this))}
-          </ul>
-          <button id="goCompare" onClick={this.sendCompareRequest}>Go</button>
-          <button id="exportCsv" onClick={this.exportCsv}>Export</button>
-          <br/>
-          Number of different Records: {this.state.diffRecords.length}
-          <table>
-            <thead>
-              {this.state.targetFields.map(function(field){
-                return (
-                  <td>{field}</td>
-                );
-              }.bind(this))}
-            </thead>
-            <tbody>
-              {this.state.diffRecords.map(function(record){
-                return (
-                  <tr>
-                    {this.state.targetFields.map(function(field){
-                      return (
-                        <td>{record[field]}</td>
-                      );
-                    })}
-                  </tr>
-                );
-              }.bind(this))}
-            </tbody>
-          </table>
+      <div className="container">
+        <h1>Result Page</h1>
+        <div className="row">
+          <div className="col-md-3">
+            <div className="panel panel-info">
+              <div className="panel-heading">選取比較欄位</div>
+              <div className="panel-body">
+              <ul className="list-group">
+                {this.state.sameFields.map(function(field){
+                  return(<li className="list-group-item">
+                    <input type="checkbox" value={field} onChange={this.handleChange}/> {field}</li>);
+                }.bind(this))}
+              </ul>
+              </div>
+            </div>
+            <button className="btn btn-primary btn-sm" id="goCompare" onClick={this.sendCompareRequest}>Go</button>
+            <div className="pull-right">
+            <button className="btn btn-success btn-sm" id="exportCsv" onClick={this.exportCsv}>Export</button>
+            </div>
+          </div>
+          <div className="col-md-9">
 
+            <legend>Number of different records: {this.state.diffRecords.length}</legend>
+            <table className="table table-striped table-hover">
+              <thead>
+                {this.state.targetFields.map(function(field){
+                  return (
+                    <td>{field}</td>
+                  );
+                }.bind(this))}
+              </thead>
+              <tbody>
+                {this.state.diffRecords.map(function(record){
+                  return (
+                    <tr>
+                      {this.state.targetFields.map(function(field){
+                        return (
+                          <td>{record[field]}</td>
+                        );
+                      })}
+                    </tr>
+                  );
+                }.bind(this))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
