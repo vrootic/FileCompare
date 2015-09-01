@@ -69,21 +69,15 @@ var App = React.createClass({
       csvContent += lineDelimiter;
     });
     console.log(csvContent);
-    filename = 'export.csv';
-    
-    xlsx.writeFile(csvContent, "out.xlsx");
-    // var textEncoder = new TextEncoder("utf-8");
-    //
-    // if (!csvContent.match(/^data:text\/csv/i)) {
-    //     csvContent = 'data:text/csv;charset=utf-8,' + csvContent;
-    // }
-    // data = encodeURI(new TextDecoder("utf-8").decode(textEncoder.encode(csvContent)));
+    filename = 'export';
+    var iconv = require("iconv-lite");
+    data = 'data:text/csv;charset=utf-8;base64,' + iconv.encode(csvContent, "utf-8");
 
-
-    // link = document.createElement('a');
-    // link.setAttribute('href', data);
-    // link.setAttribute('download', filename);
-    // link.click();
+    console.log(data);
+    link = document.createElement('a');
+    link.setAttribute('href', data);
+    link.setAttribute('download', filename);
+    link.click();
 
     // fs.writeFile(filename, csvContent, function(err) {
     //   if (err) throw err;

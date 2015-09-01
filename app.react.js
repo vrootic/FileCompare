@@ -160,12 +160,15 @@ var App = React.createClass({
 				if (pivotIndex != 0) {
 					targetFields.splice(pivotIndex, 1);
 					// insert 身分證字號 into the first element
-					targetFields.unshift("身分證字號")
+					targetFields.unshift("身分證字號");
 				}
-				targetFields.push("原因");
+				if (targetFields.indexOf("原因") == -1) {
+					targetFields.push("原因");
+				}
 			}
 
 			// {ID: [value1, value2, ...]}
+			// inputFlag: {0: originalFile, 1: currentFile}
 			function buildHash(records, resultRecords, inputFlag) {
 				records.forEach(function(record){
 					var key = record[ targetFields[0] ];
