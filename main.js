@@ -30,7 +30,7 @@ app.on("ready", function() {
 
 		if (!resultWindow) {
 			resultWindow = new BrowserWindow({
-				width: 1000,
+				width: 1050,
 				height: 600,
 				resizable: true,
 			});
