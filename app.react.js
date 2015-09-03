@@ -204,6 +204,9 @@ var App = React.createClass({
 				});
 			};
 
+			ipc.send("compareAction", {
+				data: "0%"
+			});
 			ipc.send("buildHash", {
 				data: "start"
 			});
@@ -214,11 +217,15 @@ var App = React.createClass({
 			});
 
 			ipc.send("compareAction", {
-				data: "0%"
+				data: "25%"
 			});
+			var copyOfOriginalRecords = originalRecords;
 			for (var oRecordKey in originalRecords) {
 				if (currentRecords[oRecordKey] == undefined) {
 					var record = {};
+					// console.log(oRecordKey);
+					delete copyOfOriginalRecords[oRecordKey];
+
 					for (var i = 0; i < originalFile.length; i++) {
 						if (originalFile[i][targetFields[0]] == oRecordKey) {
 							record = originalFile[i];
@@ -229,8 +236,9 @@ var App = React.createClass({
 					}
 				}
 			}
+
 			ipc.send("compareAction", {
-				data: "33%"
+				data: "50%"
 			});
 
 			for (var cRecordKey in currentRecords) {
@@ -247,13 +255,14 @@ var App = React.createClass({
 				}
 			}
 			ipc.send("compareAction", {
-				data: "66%"
+				data: "75%"
 			});
 
-			for (var oRecordKey in originalRecords) {
+			for (var oRecordKey in copyOfOriginalRecords) {
 				var record = {};
 				var currentValue = currentRecords[oRecordKey];
 				var originalValue = originalRecords[oRecordKey];
+				// console.log(oRecordKey);
 				record[targetFields[0]] = oRecordKey;
 				originalValue.forEach(function(v){
 					if ( -1 === currentValue.indexOf(v) ) {
@@ -265,6 +274,7 @@ var App = React.createClass({
 					}
 				});
 			}
+
 			ipc.send("compareAction", {
 				data: "100%"
 			});
