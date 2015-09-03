@@ -167,6 +167,7 @@ var App = React.createClass({
 				}
 			}
 
+
 			// {ID: [value1, value2, ...]}
 			// inputFlag: {0: originalFile, 1: currentFile}
 			function buildHash(records, resultRecords, inputFlag) {
@@ -179,6 +180,8 @@ var App = React.createClass({
 							value.push(record[ targetFields[i] ].replace(',', ''));
 						}
 					}
+					console.log(key);
+
 					if (!resultRecords[key]) {
 						resultRecords[key] = value;
 					}
@@ -190,7 +193,7 @@ var App = React.createClass({
 								break;
 							}
 						}
-						console.log(diffRecord);
+
 						if (inputFlag == 0) {
 							diffRecord[targetFields[targetFields.length - 1]] = "原始檔中此筆重複出現";
 						}
@@ -201,6 +204,8 @@ var App = React.createClass({
 					}
 				});
 			};
+
+
 			buildHash(originalFile, originalRecords, 0); // inputFlag = 0
 			buildHash(currentFile, currentRecords, 1); // inputFlag = 1
 
@@ -231,27 +236,24 @@ var App = React.createClass({
 					}
 				}
 			}
+			var startTime = Date.now();
 
 			for (var oRecordKey in originalRecords) {
-				for (var cRecordKey in currentRecords) {
-					var record = {};
-					if (oRecordKey == cRecordKey) {
-						var currentValue = currentRecords[oRecordKey];
-						var originalValue = originalRecords[oRecordKey];
-						record[targetFields[0]] = oRecordKey;
-						originalValue.forEach(function(v){
-							if ( -1 === currentValue.indexOf(v) ) {
-								for (var i = 1; i < targetFields.length - 1; i++) {
-									record[targetFields[i]] = originalValue[i-1];
-								}
-								record[targetFields[targetFields.length - 1]] = "比對欄位不相同";
-								diffRecords.push(record);
-							}
-						});
-						break;
+				var record = {};
+				var currentValue = currentRecords[oRecordKey];
+				var originalValue = originalRecords[oRecordKey];
+				record[targetFields[0]] = oRecordKey;
+				originalValue.forEach(function(v){
+					if ( -1 === currentValue.indexOf(v) ) {
+						for (var i = 1; i < targetFields.length - 1; i++) {
+							record[targetFields[i]] = originalValue[i-1];
+						}
+						record[targetFields[targetFields.length - 1]] = "比對欄位不相同";
+						diffRecords.push(record);
 					}
-				}
+				});
 			}
+
 
 			diffRecords.forEach(function(record) {
 				console.log(record);
