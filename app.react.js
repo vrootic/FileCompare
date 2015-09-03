@@ -180,7 +180,6 @@ var App = React.createClass({
 							value.push(record[ targetFields[i] ].replace(',', ''));
 						}
 					}
-					console.log(key);
 
 					if (!resultRecords[key]) {
 						resultRecords[key] = value;
@@ -205,10 +204,18 @@ var App = React.createClass({
 				});
 			};
 
-
+			ipc.send("buildHash", {
+				data: "start"
+			});
 			buildHash(originalFile, originalRecords, 0); // inputFlag = 0
 			buildHash(currentFile, currentRecords, 1); // inputFlag = 1
+			ipc.send("buildHash", {
+				data: "finish"
+			});
 
+			ipc.send("compareAction", {
+				data: "0%"
+			});
 			for (var oRecordKey in originalRecords) {
 				if (currentRecords[oRecordKey] == undefined) {
 					var record = {};
@@ -222,6 +229,9 @@ var App = React.createClass({
 					}
 				}
 			}
+			ipc.send("compareAction", {
+				data: "33%"
+			});
 
 			for (var cRecordKey in currentRecords) {
 				if (originalRecords[cRecordKey] == undefined) {
@@ -236,7 +246,9 @@ var App = React.createClass({
 					}
 				}
 			}
-			var startTime = Date.now();
+			ipc.send("compareAction", {
+				data: "66%"
+			});
 
 			for (var oRecordKey in originalRecords) {
 				var record = {};
@@ -253,6 +265,9 @@ var App = React.createClass({
 					}
 				});
 			}
+			ipc.send("compareAction", {
+				data: "100%"
+			});
 
 
 			diffRecords.forEach(function(record) {

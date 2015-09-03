@@ -59,6 +59,16 @@ app.on("ready", function() {
 		});
 	});
 
+	ipc.on("buildHash", function(evt, args) {
+		console.log("buildHash " + args.data);
+	});
+
+	ipc.on("compareAction", function(evt, args) {
+		resultWindow.webContents.send("progress", {
+			data: args.data
+		});
+	});
+
 	ipc.on("diffRecords", function(evt, args) {
 		var diffRecords = args.data;
 		var targetFields = args.fields;

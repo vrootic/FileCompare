@@ -7,6 +7,7 @@ var App = React.createClass({
 			sameFields: [],
       targetFields: [],
       diffRecords: [],
+      progressBarStyle: {width: "0%"},
 		};
 	},
 
@@ -21,6 +22,10 @@ var App = React.createClass({
       console.log("diffRecords received from resultWindow");
       this.setState({diffRecords: args.data, targetFields: args.fields});
       // console.log(args.data);
+    }.bind(this));
+
+    ipc.on("progress", function(args) {
+      this.setState({progressBarStyle: {width: args.data}});
     }.bind(this));
 
   },
@@ -90,7 +95,7 @@ var App = React.createClass({
     return (
 
       <div className="container">
-        <h1>Result Page</h1>
+        <h1 className="page-header">Result</h1>
         <div className="row">
           <div className="col-md-3">
             <div className="panel panel-info">
@@ -104,13 +109,19 @@ var App = React.createClass({
               </ul>
               </div>
             </div>
-            <button className="btn btn-primary btn-sm" id="goCompare" onClick={this.sendCompareRequest}>Go</button>
             <div className="pull-right">
-            <button className="btn btn-success btn-sm" id="exportCsv" onClick={this.exportCsv}>Export</button>
+            <button className="btn btn-primary btn-sm" id="goCompare" onClick={this.sendCompareRequest}>Go</button>
             </div>
+            <button className="btn btn-success btn-sm" id="exportCsv" onClick={this.exportCsv}>Export</button>
+
           </div>
           <div className="col-md-9">
-
+            <div className="progress">
+              <div className="progress-bar" role="progress" aria-valuenow="80"
+                aria-valuemax="100" style={this.state.progressBarStyle}>
+                {this.state.progressBarStyle}
+              </div>
+            </div>
             <legend>Number of different records: {this.state.diffRecords.length}</legend>
             <table className="table table-striped table-hover">
               <thead>
