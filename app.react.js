@@ -200,6 +200,7 @@ var App = React.createClass({
 							diffRecord[targetFields[targetFields.length - 1]] = "比對檔中此筆重複出現";
 						}
 						diffRecords.push(diffRecord);
+						delete resultRecords[key];
 					}
 				});
 			};
@@ -258,12 +259,12 @@ var App = React.createClass({
 				data: "75%"
 			});
 
-			for (var oRecordKey in copyOfOriginalRecords) {
+			for (var key in copyOfOriginalRecords) {
 				var record = {};
-				var currentValue = currentRecords[oRecordKey];
-				var originalValue = originalRecords[oRecordKey];
-				// console.log(oRecordKey);
-				record[targetFields[0]] = oRecordKey;
+				var currentValue = currentRecords[key];
+				var originalValue = originalRecords[key];
+
+				record[targetFields[0]] = key;
 				originalValue.forEach(function(v){
 					if ( -1 === currentValue.indexOf(v) ) {
 						for (var i = 1; i < targetFields.length - 1; i++) {
@@ -298,11 +299,13 @@ var App = React.createClass({
 				<div id="title">
 					<h1>File compare</h1>
 				</div>
-				<div id="control-button">
-					<button id="myButton1" onClick={this.handleReset}>Reset</button>
-					<button id="myButton" onClick={this.compareFiles}>Compare</button>
+				<div className="container" id="control-button">
+					<button className="btn btn-default" onClick={this.handleReset}>Reset</button>
+					<div className="pull-right">
+					<button className="btn btn-primary" onClick={this.compareFiles}>Next</button>
+					</div>
 				</div>
-
+				<div className="container">
 				<div ref="OriginalFile" id="ogfile">
 					<strong>Original File Drag Here</strong><br/>
 					{this.state.originalFilePath}
@@ -311,6 +314,7 @@ var App = React.createClass({
 				<div ref="CurrentFile" id="crfile">
 					<strong>Current File Drag Here</strong><br/>
 					{this.state.currentFilePath}
+				</div>
 				</div>
 
 			</div>

@@ -117,12 +117,11 @@ var App = React.createClass({
           </div>
           <div className="col-md-9">
             <div className="progress">
-              <div className="progress-bar" role="progress" aria-valuenow="80"
-                aria-valuemax="100" style={this.state.progressBarStyle}>
+              <div className="progress-bar" role="progress" aria-valuemax="100" style={this.state.progressBarStyle}>
                 {this.state.progressBarStyle}
               </div>
             </div>
-            <legend>Number of different records: {this.state.diffRecords.length}</legend>
+            <legend>Total: {this.state.diffRecords.length}</legend>
             <table className="table table-striped table-hover">
               <thead>
                 {this.state.targetFields.map(function(field){
