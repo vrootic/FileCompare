@@ -73,15 +73,16 @@ var App = React.createClass({
       });
       csvContent += lineDelimiter;
     });
-    console.log(csvContent);
+
     filename = 'export.csv';
     data = "data:text/csv;charset=utf-8,\uFEFF" + encodeURIComponent(csvContent);
 
-    console.log(data);
     link = document.createElement('a');
     link.setAttribute('href', data);
     link.setAttribute('download', filename);
     link.click();
+
+    ipc.send("exportImage", {});
 
   },
 

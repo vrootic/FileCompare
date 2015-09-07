@@ -69,6 +69,31 @@ app.on("ready", function() {
 		});
 	});
 
+	ipc.on("exportImage", function(evt, args) {
+		resultWindow.capturePage(function(image){
+			var fs = require("fs");
+
+			// fs.writeFile("export.png", image.toPng(), function(err) {
+			// 	if (err) throw err;
+			// 	console.log("It's saved");
+			// });
+			dialog.showSaveDialog(
+				resultWindow,
+				{
+					title: "Export to PNG",
+			    filters: [{
+			       name: "export.png",
+			       extensions: ["png"]
+			    }]
+				},
+				function(pathname) {
+					if (!pathname) return;
+					fs.writeFileSync(pathname, image.toPng());
+				}
+			);
+		});
+	});
+
 	ipc.on("diffRecords", function(evt, args) {
 		var diffRecords = args.data;
 		var targetFields = args.fields;
