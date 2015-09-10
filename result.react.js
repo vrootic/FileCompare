@@ -20,6 +20,7 @@ var App = React.createClass({
 
     ipc.on("diffRecords", function(args) {
       console.log("diffRecords received from resultWindow");
+      // console.log(JSON.stringify(args));
       this.setState({diffRecords: args.data, targetFields: args.fields});
       // console.log(args.data);
     }.bind(this));
@@ -127,15 +128,17 @@ var App = React.createClass({
               </thead>
               <tbody>
                 {this.state.diffRecords.map(function(record){
-                  return (
-                    <tr>
-                      {this.state.targetFields.map(function(field){
-                        return (
-                          <td>{record[field]}</td>
-                        );
-                      })}
-                    </tr>
-                  );
+                  if (record != null) {
+                    return (
+                      <tr>
+                        {this.state.targetFields.map(function(field){
+                          return (
+                            <td>{record[field]}</td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  }
                 }.bind(this))}
               </tbody>
             </table>

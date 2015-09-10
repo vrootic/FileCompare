@@ -282,7 +282,7 @@ var App = React.createClass({
 
 
 			diffRecords.forEach(function(record) {
-				console.log(record);
+				console.log(JSON.stringify(record));
 			});
 
 			ipc.send("diffRecords", {
