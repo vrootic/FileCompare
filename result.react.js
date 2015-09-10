@@ -69,12 +69,13 @@ var App = React.createClass({
         if (ctr > 0) {
           csvContent += columnDelimiter;
         }
-        csvContent += item[field];
+        cleanItemField = item[field].replace(',', '');
+        csvContent += cleanItemField;
         ctr++;
       });
       csvContent += lineDelimiter;
     });
-
+    console.log(csvContent);
     filename = 'export.csv';
     data = "data:text/csv;charset=utf-8,\uFEFF" + encodeURIComponent(csvContent);
 
