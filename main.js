@@ -45,7 +45,7 @@ app.on("ready", function() {
 		});
 
 		resultWindow.loadUrl("file://" + __dirname + "/result.html");
-		// resultWindow.openDevTools();
+		resultWindow.openDevTools();
 
 		resultWindow.on("closed", function() {
 			console.log("resultWindow has been closed.");
@@ -73,16 +73,12 @@ app.on("ready", function() {
 		resultWindow.capturePage(function(image){
 			var fs = require("fs");
 
-			// fs.writeFile("export.png", image.toPng(), function(err) {
-			// 	if (err) throw err;
-			// 	console.log("It's saved");
-			// });
 			dialog.showSaveDialog(
 				resultWindow,
 				{
 					title: "Export to PNG",
 			    filters: [{
-			       name: "export.png",
+			       name: "screenshot.png",
 			       extensions: ["png"]
 			    }]
 				},

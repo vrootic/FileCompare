@@ -5,6 +5,7 @@ var App = React.createClass({
   getInitialState: function() {
 		return {
 			sameFields: [],
+      primaryField: [],
       targetFields: [],
       diffRecords: [],
       progressBarStyle: {width: "0%"},
@@ -31,7 +32,12 @@ var App = React.createClass({
 
   },
 
-  handleChange: function(e) {
+  primarySelectChange: function(e) {
+    
+    e.target.checked = true;
+  },
+
+  secondarySelectChange: function(e) {
     if (e.target.checked) {
       this.state.targetFields.push(e.target.value);
     }
@@ -93,16 +99,29 @@ var App = React.createClass({
       <div className="container">
         <h1 className="page-header">Result</h1>
         <div className="row">
-          <div className="col-md-3">
+          <div className="col-md-4">
             <div className="panel panel-info">
-              <div className="panel-heading">選取比較欄位</div>
+              <div className="panel-heading">Select fields</div>
               <div className="panel-body">
-              <ul className="list-group">
+
+              <table className="table table-striped">
+                <thead>
+                  <td>Primary</td>
+                  <td>Secondary</td>
+                  <td>Field</td>
+                </thead>
+                <tbody>
                 {this.state.sameFields.map(function(field){
-                  return(<li className="list-group-item">
-                    <input type="checkbox" value={field} onChange={this.handleChange}/> {field}</li>);
+                  return(
+                    <tr>
+                      <td><input type="checkbox" ref="primary" value={field} onChange={this.primarySelectChange}/></td>
+                      <td><input type="checkbox" value={field} onChange={this.secondarySelectChange}/></td>
+                      <td>{field}</td>
+                    </tr>
+                  );
                 }.bind(this))}
-              </ul>
+                </tbody>
+              </table>
               </div>
             </div>
             <div className="pull-right">
@@ -111,7 +130,7 @@ var App = React.createClass({
             <button className="btn btn-success btn-sm" id="exportCsv" onClick={this.exportCsv}>Export</button>
 
           </div>
-          <div className="col-md-9">
+          <div className="col-md-8">
             <div className="progress">
               <div className="progress-bar" role="progress" aria-valuemax="100" style={this.state.progressBarStyle}>
                 {this.state.progressBarStyle}
