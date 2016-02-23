@@ -64,7 +64,7 @@ var App = React.createClass({
     var data = this.state.diffRecords;
 
     var columnDelimiter = ",";
-    var lineDelimiter = "\n";
+    var lineDelimiter = "\n\r";
 
     csvContent += fields.join(columnDelimiter);
     csvContent += lineDelimiter;
