@@ -23,7 +23,7 @@ app.on("ready", function() {
 	mainWindow.setMenu(null);
 	var homepageUrl = "file://" + __dirname + "/index.html";
 	mainWindow.loadUrl(homepageUrl);
-	// mainWindow.openDevTools();
+	//mainWindow.openDevTools();
 
 
 	ipc.on("sameField", function(evt, args) {

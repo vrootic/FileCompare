@@ -1,6 +1,7 @@
 var xlsx = require("xlsx");
 var fs = require("fs");
 var ipc = require("ipc");
+var parse = require("csv-parse");
 
 
 var App = React.createClass({
@@ -23,19 +24,36 @@ var App = React.createClass({
 	handleOnDrop: function(stateKey, e) {
 		e.preventDefault();
 		var file = e.dataTransfer.files[0];
-
-		this.handleReadFile(stateKey, file.path);
+		if (file.path.endsWith('.csv')) {
+			this.handleCsvReadFile(stateKey, file);
+		}
+		else if (file.path.endsWith('.xls') || file.path.endsWith('.xlsx')) {
+			this.handleXlsReadFile(stateKey, file.path);
+		}
 	},
 
-	handleReadFile: function(stateKey, file_path) {
-		var state = {};
-		state[stateKey] = file_path;
+	handleCsvReadFile: function(stateKey, file_path) {
+		console.log('this is csv file.');
+		var csvData = fs.readFileSync(file_path, 'utf-8');
+		console.log(csvData);
+		// parse(csvData, function(err, output) {
+		// 	if (err) {
+		// 		return console.log(err);
+		// 	}
+		// 	console.log(output);
+		// });
+		
+	},
+
+	handleXlsReadFile: function(stateKey, file_path) {
+		var fileNameState = {};
+		fileNameState[stateKey] = file_path;
 		parsedFile = xlsx.readFile(file_path);
-		this.toJson(parsedFile, stateKey);
-		this.setState(state);
+		this.setComparingKeys(parsedFile, stateKey);
+		this.setState(fileNameState);
 	},
 
-	toJson: function(file, stateKey) {
+	setComparingKeys: function(file, stateKey) {
 		var result = [];
 		var keys = []
 		file.SheetNames.forEach(function(sheetName){
@@ -55,7 +73,7 @@ var App = React.createClass({
 			state["currentFile"] = result;
 			state["currentFileHeaders"] = keys;
 		}
-
+		// console.log(JSON.stringify(state));
 		this.setState(state);
 	},
 
@@ -96,12 +114,17 @@ var App = React.createClass({
 				title: "Navigate to file",
 				properties: ["openFile"],
 				filters: [
-					{ name: 'SpreadSheet File', extensions: ['xls', 'xlsx']}
+					{ name: 'SpreadSheet File', extensions: ['xls', 'xlsx', 'csv']}
 				]
 			},
-			function(filename) {
-				if (filename) {
-					this.handleReadFile(stateKey, filename[0]);
+			function(file) {
+				if (file === undefined) return;
+				var fileName = file[0];
+				if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
+					this.handleXlsReadFile(stateKey, fileName);
+				}
+				else if (fileName.endsWith('.csv')) {
+					this.handleCsvReadFile(stateKey, fileName);
 				}
 			}.bind(this)
 		);
