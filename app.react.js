@@ -2,6 +2,7 @@ var xlsx = require("xlsx");
 var fs = require("fs");
 var ipc = require("ipc");
 var parse = require("csv-parse");
+var iconv = require("iconv-lite");
 
 
 var App = React.createClass({
@@ -34,15 +35,26 @@ var App = React.createClass({
 
 	handleCsvReadFile: function(stateKey, file_path) {
 		console.log('this is csv file.');
-		var csvData = fs.readFileSync(file_path, 'utf-8');
-		console.log(csvData);
-		// parse(csvData, function(err, output) {
-		// 	if (err) {
-		// 		return console.log(err);
-		// 	}
-		// 	console.log(output);
-		// });
-		
+		var csvData = fs.readFileSync(file_path, 'binary');
+		var buf = new Buffer(csvData, 'binary');
+		var decodedBody = iconv.decode(buf, 'cp950');
+		decodedBody = decodedBody.replace(/\r/g, '');
+		var parser = parse({rowDelimiter: '\n'});
+		var output = [];
+		parser.on('readable', function(){
+			while (record = parser.read()) {
+				output.push(record);
+			}
+		});
+		parser.on('error', function(err){
+			console.log(err.message);
+		}); 
+		parser.on('finish', function(){
+
+		});
+		parser.write(decodedBody);
+		parser.end();
+		console.log(output.length);
 	},
 
 	handleXlsReadFile: function(stateKey, file_path) {
