@@ -32,12 +32,8 @@ var App = React.createClass({
 
   },
 
+  
   primarySelectChange: function(e) {
-    
-    e.target.checked = true;
-  },
-
-  secondarySelectChange: function(e) {
     if (e.target.checked) {
       this.state.targetFields.push(e.target.value);
     }
@@ -105,24 +101,16 @@ var App = React.createClass({
               <div className="panel-heading">Select fields</div>
               <div className="panel-body">
 
-              <table className="table table-striped">
-                <thead>
-                  <td>Primary</td>
-                  <td>Secondary</td>
-                  <td>Field</td>
-                </thead>
-                <tbody>
-                {this.state.sameFields.map(function(field){
+              <ul className="list-group">
+                {
+                  this.state.sameFields.map(function(field){
                   return(
-                    <tr>
-                      <td><input type="checkbox" ref="primary" value={field} onChange={this.primarySelectChange}/></td>
-                      <td><input type="checkbox" value={field} onChange={this.secondarySelectChange}/></td>
-                      <td>{field}</td>
-                    </tr>
+                    <li className="list-group-item">
+                      <input type="checkbox" ref="primary" value={field} onChange={this.primarySelectChange}/> {field}
+                    </li>
                   );
                 }.bind(this))}
-                </tbody>
-              </table>
+              </ul>
               </div>
             </div>
             <div className="pull-right">

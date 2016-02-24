@@ -1,7 +1,7 @@
 var xlsx = require("xlsx");
 var fs = require("fs");
 var ipc = require("ipc");
-var csv = require("csv");
+var parse = require("csv-parse");
 var iconv = require("iconv-lite");
 
 
@@ -26,28 +26,62 @@ var App = React.createClass({
 		e.preventDefault();
 		var file = e.dataTransfer.files[0];
 		if (file.path.endsWith('.csv')) {
-			this.handleCsvReadFile(stateKey, file);
+			this.handleCsvFile(stateKey, file);
 		}
 		else if (file.path.endsWith('.xls') || file.path.endsWith('.xlsx')) {
-			this.handleXlsReadFile(stateKey, file.path);
+			this.handleXlsFile(stateKey, file.path);
 		}
 	},
 
-	handleCsvReadFile: function(stateKey, file_path) {
-		console.log('this is csv file.');
-		var csvData = fs.readFileSync(file_path, "binary");
+	handleCsvFile: function(stateKey, filePath) {
+		var parsedCsvStr = this.readCsvFile(filePath);
+		var output = this.csvParserInit(parsedCsvStr);
+		this.setFileNameState(stateKey, filePath);
 		
-		var csvData = iconv.decode(csvData, 'cp950');
-		
-		console.log(csvData);
+		var keys = output[0];
+		var result = [];
+		for (var i = 1; i < output.length; i++) {
+			var tmpObj = {};
+			for (var j = 0; j < keys.length; j++) {
+				tmpObj[keys[j]] = output[i][j];
+			}
+			result.push(tmpObj);
+		}
+
+		this.setFileState(stateKey, result, keys);
 	},
 
-	handleXlsReadFile: function(stateKey, file_path) {
-		var fileNameState = {};
-		fileNameState[stateKey] = file_path;
-		parsedFile = xlsx.readFile(file_path);
+	readCsvFile: function(filePath) {
+		var csvData = fs.readFileSync(filePath, 'binary');
+		var buf = new Buffer(csvData, 'binary');
+		var decodedBody = iconv.decode(buf, 'cp950');
+		decodedBody = decodedBody.replace(/\r/g, '');
+
+		return decodedBody;
+	},
+
+	csvParserInit: function(csvStr) {
+		var parser = parse({rowDelimiter: '\n'});
+		var output = [];
+
+		parser.on('readable', function(){
+			while (record = parser.read()) {
+				output.push(record);
+			}
+		});
+		parser.on('error', function(err){
+			console.log(err.message);
+		}); 
+		parser.write(csvStr);
+		parser.end();
+
+		return output;
+	},
+
+	handleXlsFile: function(stateKey, filePath) {
+		parsedFile = xlsx.readFile(filePath);
 		this.setComparingKeys(parsedFile, stateKey);
-		this.setState(fileNameState);
+		this.setFileNameState(stateKey, filePath);
 	},
 
 	setComparingKeys: function(file, stateKey) {
@@ -60,7 +94,16 @@ var App = React.createClass({
 				keys = Object.keys(rawData[0]);
 			}
 		});
+		this.setFileState(stateKey, result, keys);
+	},
 
+	setFileNameState: function(stateKey, filePath) {
+		var fileNameState = {};
+		fileNameState[stateKey] = filePath;
+		this.setState(fileNameState);
+	},
+
+	setFileState: function(stateKey, result, keys) {
 		var state = {};
 		if (stateKey == "originalFilePath") {
 			state["originalFile"] = result;
@@ -118,10 +161,10 @@ var App = React.createClass({
 				if (file === undefined) return;
 				var fileName = file[0];
 				if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
-					this.handleXlsReadFile(stateKey, fileName);
+					this.handleXlsFile(stateKey, fileName);
 				}
 				else if (fileName.endsWith('.csv')) {
-					this.handleCsvReadFile(stateKey, fileName);
+					this.handleCsvFile(stateKey, fileName);
 				}
 			}.bind(this)
 		);
