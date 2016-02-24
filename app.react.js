@@ -331,7 +331,7 @@ var App = React.createClass({
 				originalValue.forEach(function(v){
 					if ( -1 === currentValue.indexOf(v) ) {
 						for (var i = 1; i < targetFields.length - 1; i++) {
-							record[targetFields[i]] = originalValue[i-1];
+							record[targetFields[i]] = JSON.stringify(originalValue[i-1] - currentValue[i-1]);
 						}
 						record[targetFields[targetFields.length - 1]] = "比對欄位不相同";
 						diffRecords.push(record);
@@ -344,9 +344,9 @@ var App = React.createClass({
 			});
 
 
-			diffRecords.forEach(function(record) {
-				console.log(JSON.stringify(record));
-			});
+			// diffRecords.forEach(function(record) {
+			// 	console.log(JSON.stringify(record));
+			// });
 
 			ipc.send("diffRecords", {
 				data: diffRecords,
