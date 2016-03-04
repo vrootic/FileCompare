@@ -340,6 +340,7 @@ var App = React.createClass({
 				currentRecord[targetFields[0]] = key;
 				originalValue.forEach(function(v){
 					if ( -1 === currentValue.indexOf(v) ) {
+						console.log(v);
 						for (var i = 1; i < targetFields.length - 1; i++) {
 							record[targetFields[i]] = originalValue[i-1];
 							currentRecord[targetFields[i]] = currentValue[i-1];
