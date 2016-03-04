@@ -234,19 +234,17 @@ var App = React.createClass({
 			}
 
 
-			// {ID: [value1, value2, ...]}
+			// {ID: {field1: value1, field2: value2, ...}}
 			// inputFlag: {0: originalFile, 1: currentFile}
-			/* records = [
-				{key1: val1, key2: val2, ...}, {}, {},...]
-			*/
+			
 			function buildHash(records, resultRecords, inputFlag) {
 				records.forEach(function(record){
 					var uniqueKey = record[ targetFields[0] ];
-					var value = [];
+					var value = {};
 					// index 0 is reserved for ID, so it begins with index 1
 					for (var i = 1; i < targetFields.length; i++) {
 						if (record[ targetFields[i] ]) {
-							value.push(record[ targetFields[i] ].replace(',', ''));
+							value[targetFields[i]] = record[ targetFields[i] ].replace(',', '');
 						}
 					}
 
@@ -336,32 +334,26 @@ var App = React.createClass({
 				var currentValue = currentRecords[key];
 				var originalValue = originalRecords[key];
 
-				record[targetFields[0]] = key;
-				currentRecord[targetFields[0]] = key;
-				originalValue.forEach(function(v){
-					if ( -1 === currentValue.indexOf(v) ) {
-						console.log(v);
-						for (var i = 1; i < targetFields.length - 1; i++) {
-							record[targetFields[i]] = originalValue[i-1];
-							currentRecord[targetFields[i]] = currentValue[i-1];
-						}
-						record[targetFields[targetFields.length - 1]] = "比對欄位不相同";
-						currentRecord[targetFields[targetFields.length - 1]] = "比對欄位不相同";
+				for (var i = 1; i < targetFields.length - 1; i++) {
+					if (currentValue[targetFields[i]] != originalValue[targetFields[i]]) {
+						record = originalValue;
+						currentRecord = currentValue;
+						record[targetFields[targetFields.length - 1]] = targetFields[i] + "比對欄位不相同";
+						currentRecord[targetFields[targetFields.length - 1]] = targetFields[i] + "比對欄位不相同";
 						diffRecords.push(record);
 						currentDiffRecords.push(currentRecord);
 					}
-				});
+				}
+
+				record[targetFields[0]] = key;
+				currentRecord[targetFields[0]] = key;
+
 			}
 
 			ipc.send("compareAction", {
 				data: "100%"
 			});
-
-
-			// diffRecords.forEach(function(record) {
-			// 	console.log(JSON.stringify(record));
-			// });
-
+			
 			ipc.send("diffRecords", {
 				data: {"original": diffRecords, "current": currentDiffRecords},
 				fields: targetFields
