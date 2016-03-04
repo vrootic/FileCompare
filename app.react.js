@@ -198,11 +198,13 @@ var App = React.createClass({
 			var originalRecords = {};
 			var currentRecords = {};
 			var diffRecords = [];
-
-			if (targetFields.indexOf("身分證字號") == -1) {
+			var currentDiffRecords = [];
+			var pivotIndex = targetFields.indexOf("身分證字號");
+			
+			if (pivotIndex == -1) {
 				var remote = require("remote"),
-						dialog = remote.require("dialog"),
-						currentWindow = remote.getCurrentWindow();
+					dialog = remote.require("dialog"),
+					currentWindow = remote.getCurrentWindow();
 
 				dialog.showMessageBox(
 					currentWindow,
@@ -219,8 +221,9 @@ var App = React.createClass({
 				return;
 			}
 			else {
-				var pivotIndex = targetFields.indexOf("身分證字號");
+				
 				if (pivotIndex != 0) {
+					// delete the existent field
 					targetFields.splice(pivotIndex, 1);
 					// insert 身分證字號 into the first element
 					targetFields.unshift("身分證字號");
@@ -233,9 +236,12 @@ var App = React.createClass({
 
 			// {ID: [value1, value2, ...]}
 			// inputFlag: {0: originalFile, 1: currentFile}
+			/* records = [
+				{key1: val1, key2: val2, ...}, {}, {},...]
+			*/
 			function buildHash(records, resultRecords, inputFlag) {
 				records.forEach(function(record){
-					var key = record[ targetFields[0] ];
+					var uniqueKey = record[ targetFields[0] ];
 					var value = [];
 					// index 0 is reserved for ID, so it begins with index 1
 					for (var i = 1; i < targetFields.length; i++) {
@@ -244,13 +250,13 @@ var App = React.createClass({
 						}
 					}
 
-					if (!resultRecords[key]) {
-						resultRecords[key] = value;
+					if (!resultRecords[uniqueKey]) {
+						resultRecords[uniqueKey] = value;
 					}
 					else {
 						var diffRecord = {};
 						for (var j = 0; j < records.length; j++) {
-							if (records[j][targetFields[0]] == key) {
+							if (records[j][targetFields[0]] == uniqueKey) {
 								diffRecord = records[j];
 								break;
 							}
@@ -258,12 +264,14 @@ var App = React.createClass({
 
 						if (inputFlag == 0) {
 							diffRecord[targetFields[targetFields.length - 1]] = "原始檔中此筆重複出現";
+							diffRecords.push(diffRecord);
 						}
 						else {
 							diffRecord[targetFields[targetFields.length - 1]] = "比對檔中此筆重複出現";
+							currentDiffRecords.push(diffRecord);
 						}
-						diffRecords.push(diffRecord);
-						delete resultRecords[key];
+						
+						delete resultRecords[uniqueKey];
 					}
 				});
 			};
@@ -312,7 +320,7 @@ var App = React.createClass({
 						if (currentFile[i][targetFields[0]] == cRecordKey) {
 							record = currentFile[i];
 							record[targetFields[targetFields.length - 1]] = "比對檔中此筆在原始檔中找不到";
-							diffRecords.push(record);
+							currentDiffRecords.push(record);
 							break;
 						}
 					}
@@ -324,17 +332,22 @@ var App = React.createClass({
 
 			for (var key in copyOfOriginalRecords) {
 				var record = {};
+				var currentRecord = {};
 				var currentValue = currentRecords[key];
 				var originalValue = originalRecords[key];
 
 				record[targetFields[0]] = key;
+				currentRecord[targetFields[0]] = key;
 				originalValue.forEach(function(v){
 					if ( -1 === currentValue.indexOf(v) ) {
 						for (var i = 1; i < targetFields.length - 1; i++) {
-							record[targetFields[i]] = JSON.stringify(originalValue[i-1] - currentValue[i-1]);
+							record[targetFields[i]] = originalValue[i-1];
+							currentRecord[targetFields[i]] = currentValue[i-1];
 						}
 						record[targetFields[targetFields.length - 1]] = "比對欄位不相同";
+						currentRecord[targetFields[targetFields.length - 1]] = "比對欄位不相同";
 						diffRecords.push(record);
+						currentDiffRecords.push(currentRecord);
 					}
 				});
 			}
@@ -349,7 +362,7 @@ var App = React.createClass({
 			// });
 
 			ipc.send("diffRecords", {
-				data: diffRecords,
+				data: {"original": diffRecords, "current": currentDiffRecords},
 				fields: targetFields
 			});
 

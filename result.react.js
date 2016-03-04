@@ -8,6 +8,7 @@ var App = React.createClass({
       primaryField: [],
       targetFields: [],
       diffRecords: [],
+      currentDiffRecords: [],
       progressBarStyle: {width: "0%"},
 		};
 	},
@@ -22,7 +23,7 @@ var App = React.createClass({
     ipc.on("diffRecords", function(args) {
       console.log("diffRecords received from resultWindow");
       // console.log(JSON.stringify(args));
-      this.setState({diffRecords: args.data, targetFields: args.fields});
+      this.setState({diffRecords: args.data["original"], currentDiffRecords: args.data["current"], targetFields: args.fields});
       // console.log(args.data);
     }.bind(this));
 
@@ -45,6 +46,7 @@ var App = React.createClass({
         }
       }
     }
+    // console.log(this.state.targetFields);
   },
 
   sendCompareRequest: function() {
@@ -126,6 +128,7 @@ var App = React.createClass({
               </div>
             </div>
             <legend>Total: {this.state.diffRecords.length}</legend>
+            <h3>Original File</h3>
             <table className="table table-striped table-hover">
               <thead>
                 {this.state.targetFields.map(function(field){
@@ -136,6 +139,31 @@ var App = React.createClass({
               </thead>
               <tbody>
                 {this.state.diffRecords.map(function(record){
+                  if (record != null) {
+                    return (
+                      <tr>
+                        {this.state.targetFields.map(function(field){
+                          return (
+                            <td>{record[field]}</td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  }
+                }.bind(this))}
+              </tbody>
+            </table>
+            <h3>Current File</h3>
+            <table className="table table-striped table-hover">
+              <thead>
+                {this.state.targetFields.map(function(field){
+                  return (
+                    <td>{field}</td>
+                  );
+                }.bind(this))}
+              </thead>
+              <tbody>
+                {this.state.currentDiffRecords.map(function(record){
                   if (record != null) {
                     return (
                       <tr>
