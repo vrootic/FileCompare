@@ -234,6 +234,7 @@ var App = React.createClass({
 				if (targetFields.indexOf(reason) == -1) {
 					targetFields.push(reason);
 				}
+				console.log(targetFields);
 			}
 
 
