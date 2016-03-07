@@ -1,6 +1,8 @@
 var ipc = require("ipc");
 var xlsx = require("xlsx");
 var fs = require("fs");
+var iconv = require("iconv-lite");
+
 var App = React.createClass({
   getInitialState: function() {
 		return {

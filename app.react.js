@@ -228,6 +228,7 @@ var App = React.createClass({
 				if (targetFields.indexOf("原因") == -1) {
 					targetFields.push("原因");
 				}
+				console.log(targetFields);
 			}
 
 
