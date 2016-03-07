@@ -5,10 +5,12 @@ var App = React.createClass({
   getInitialState: function() {
 		return {
 			sameFields: [],
-      primaryField: [],
-      targetFields: [],
+      uniqueKey: "",
+      displayFields: [],
+      uniqueFields: [],
       diffRecords: [],
       currentDiffRecords: [],
+      displayRecords: [],
       progressBarStyle: {width: "0%"},
 		};
 	},
@@ -22,27 +24,61 @@ var App = React.createClass({
 
     ipc.on("diffRecords", function(args) {
       console.log("diffRecords received from resultWindow");
-      // console.log(JSON.stringify(args));
-      this.setState({diffRecords: args.data["original"], currentDiffRecords: args.data["current"], targetFields: args.fields});
-      // console.log(args.data);
+      
+      this.setState({
+        diffRecords: args.data["original"], 
+        currentDiffRecords: args.data["current"], 
+        uniqueKey: args.data["uniqueKey"],
+        uniqueFields: args.data["uniqueFields"],
+        displayFields: args.fields,
+      });
+      
+      var uniqueKey = this.state.uniqueKey;
+      var displayFields = this.state.displayFields;
+      var diffRecords = this.state.diffRecords;
+      var currentDiffRecords = this.state.currentDiffRecords;
+      var uniqueFields = this.state.uniqueFields;
+      var displayRecords = [];
+      
+      console.log(JSON.stringify(uniqueFields));
+      for (var i = 0; i < diffRecords.length; i++) {
+        for (var j = 0; j < currentDiffRecords.length; j++) {
+          if (currentDiffRecords[j][uniqueKey] == diffRecords[i][uniqueKey]) {
+            
+
+            var record = [];
+            record.push(diffRecords[i][displayFields[0]]);
+            for (var k = 1; k < uniqueFields.length - 1; k++) {
+              record.push(diffRecords[i][uniqueFields[k]]);
+              record.push(currentDiffRecords[i][uniqueFields[k]]);
+            }
+            
+            record.push(diffRecords[i][displayFields[displayFields.length - 1]]);
+            displayRecords.push(record);
+          }
+        }
+      }
+      this.setState({displayRecords: displayRecords});
+      console.log(JSON.stringify(this.state.displayRecords));
+      
     }.bind(this));
 
     ipc.on("progress", function(args) {
       this.setState({progressBarStyle: {width: args.data}});
     }.bind(this));
-
+    
   },
 
   
   primarySelectChange: function(e) {
     if (e.target.checked) {
-      this.state.targetFields.push(e.target.value);
+      this.state.displayFields.push(e.target.value);
     }
     else {
       if (e.target.value) {
-        var index = this.state.targetFields.indexOf(e.target.value);
+        var index = this.state.displayFields.indexOf(e.target.value);
         if ( index > -1 ) {
-          this.state.targetFields.splice(index, 1);
+          this.state.displayFields.splice(index, 1);
         }
       }
     }
@@ -52,13 +88,13 @@ var App = React.createClass({
   sendCompareRequest: function() {
     // console.log(this.state.targetFields);
     ipc.send("compareRequest", {
-      data: this.state.targetFields
+      data: this.state.displayFields
     });
   },
 
   exportCsv: function() {
     var csvContent = "";
-    var fields = this.state.targetFields;
+    var fields = this.state.displayFields;
     var data = this.state.diffRecords;
 
     var columnDelimiter = ",";
@@ -127,54 +163,26 @@ var App = React.createClass({
                 {this.state.progressBarStyle}
               </div>
             </div>
-            <legend>Total: {this.state.diffRecords.length}</legend>
-            <h3>Original File</h3>
+            <legend>Total: {this.state.displayRecords.length}</legend>
             <table className="table table-striped table-hover">
               <thead>
-                {this.state.targetFields.map(function(field){
+                {this.state.displayFields.map(function(field){
                   return (
                     <td>{field}</td>
                   );
                 }.bind(this))}
               </thead>
               <tbody>
-                {this.state.diffRecords.map(function(record){
-                  if (record != null) {
-                    return (
-                      <tr>
-                        {this.state.targetFields.map(function(field){
-                          return (
-                            <td>{record[field]}</td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  }
-                }.bind(this))}
-              </tbody>
-            </table>
-            <h3>Current File</h3>
-            <table className="table table-striped table-hover">
-              <thead>
-                {this.state.targetFields.map(function(field){
-                  return (
-                    <td>{field}</td>
+                {this.state.displayRecords.map(function(record){
+                  return(
+                    <tr>
+                      {record.map(function(attr){
+                        return(
+                          <td>{attr}</td>
+                        );
+                      })}
+                    </tr>
                   );
-                }.bind(this))}
-              </thead>
-              <tbody>
-                {this.state.currentDiffRecords.map(function(record){
-                  if (record != null) {
-                    return (
-                      <tr>
-                        {this.state.targetFields.map(function(field){
-                          return (
-                            <td>{record[field]}</td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  }
                 }.bind(this))}
               </tbody>
             </table>

@@ -195,11 +195,15 @@ var App = React.createClass({
 
 		ipc.once("compareRequest", function(args) {
 			var targetFields = args.data;
+			var newTargetFields = [];
 			var originalRecords = {};
 			var currentRecords = {};
 			var diffRecords = [];
 			var currentDiffRecords = [];
-			var pivotIndex = targetFields.indexOf("身分證字號");
+			var uniqueKey = "身分證字號";
+			var reason = "原因";
+			var pivotIndex = targetFields.indexOf(uniqueKey);
+
 			
 			if (pivotIndex == -1) {
 				var remote = require("remote"),
@@ -222,14 +226,13 @@ var App = React.createClass({
 			}
 			else {
 				
-				if (pivotIndex != 0) {
-					// delete the existent field
-					targetFields.splice(pivotIndex, 1);
-					// insert 身分證字號 into the first element
-					targetFields.unshift("身分證字號");
-				}
-				if (targetFields.indexOf("原因") == -1) {
-					targetFields.push("原因");
+				// delete the existent field
+				targetFields.splice(pivotIndex, 1);
+				// insert 身分證字號 into the first element
+				targetFields.unshift(uniqueKey);
+				
+				if (targetFields.indexOf(reason) == -1) {
+					targetFields.push(reason);
 				}
 			}
 
@@ -328,6 +331,11 @@ var App = React.createClass({
 				data: "75%"
 			});
 
+			var duplicateHeader = {};
+			// init duplicate header
+			for (var i = 1; i < targetFields.length - 1; i++) {
+				duplicateHeader[targetFields[i]] = 0;
+			}
 			for (var key in copyOfOriginalRecords) {
 				var record = {};
 				var currentRecord = {};
@@ -336,6 +344,7 @@ var App = React.createClass({
 
 				for (var i = 1; i < targetFields.length - 1; i++) {
 					if (currentValue[targetFields[i]] != originalValue[targetFields[i]]) {
+						duplicateHeader[targetFields[i]] = 1;
 						record = originalValue;
 						currentRecord = currentValue;
 						record[targetFields[targetFields.length - 1]] = targetFields[i] + "比對欄位不相同";
@@ -343,20 +352,35 @@ var App = React.createClass({
 						diffRecords.push(record);
 						currentDiffRecords.push(currentRecord);
 					}
+					
 				}
 
 				record[targetFields[0]] = key;
 				currentRecord[targetFields[0]] = key;
-
 			}
+
+			targetFields.forEach(function(field){
+				newTargetFields.push(field);
+				if (duplicateHeader[field] == 1) {
+					console.log(field);
+					newTargetFields.push(field);
+				}
+			});
+
 
 			ipc.send("compareAction", {
 				data: "100%"
 			});
 			
 			ipc.send("diffRecords", {
-				data: {"original": diffRecords, "current": currentDiffRecords},
-				fields: targetFields
+				data: {
+					"uniqueKey": uniqueKey, 
+					"original": diffRecords, 
+					"current": currentDiffRecords, 
+					"duplicate": duplicateHeader,
+					"uniqueFields": targetFields,
+				},
+				fields: newTargetFields
 			});
 
 		});
