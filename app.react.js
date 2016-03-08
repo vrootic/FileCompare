@@ -371,7 +371,12 @@ var App = React.createClass({
 			ipc.send("compareAction", {
 				data: "100%"
 			});
-			
+
+			// for (var i = 0; i < diffRecords.length; i++) {
+			// 	console.log(JSON.stringify(diffRecords[i]));
+			// }
+
+			// return;
 			ipc.send("diffRecords", {
 				data: {
 					"uniqueKey": uniqueKey, 

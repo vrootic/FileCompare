@@ -39,8 +39,30 @@ var App = React.createClass({
       var currentDiffRecords = this.state.currentDiffRecords;
       var uniqueFields = this.state.uniqueFields;
       var displayRecords = [];
+
+      for (var i = 0; i < diffRecords.length; i++) {
+        var record = [];
+        record.push(diffRecords[i][displayFields[0]]);
+        for (var k = 1; k < uniqueFields.length - 1; k++) {
+              record.push("");
+              record.push("");
+        }
+        record.push(diffRecords[i][displayFields[displayFields.length - 1]]);
+        displayRecords.push(record);
+      }
+
+      for (var i = 0; i < currentDiffRecords.length; i++) {
+        var record = [];
+        record.push(currentDiffRecords[i][displayFields[0]]);
+        for (var k = 1; k < uniqueFields.length - 1; k++) {
+              record.push("");
+              record.push("");
+        }
+        record.push(currentDiffRecords[i][displayFields[displayFields.length - 1]]);
+        displayRecords.push(record);
+      }
+
       
-      console.log(JSON.stringify(uniqueFields));
       for (var i = 0; i < diffRecords.length; i++) {
         for (var j = 0; j < currentDiffRecords.length; j++) {
           if (currentDiffRecords[j][uniqueKey] == diffRecords[i][uniqueKey]) {
@@ -50,7 +72,7 @@ var App = React.createClass({
             record.push(diffRecords[i][displayFields[0]]);
             for (var k = 1; k < uniqueFields.length - 1; k++) {
               record.push(diffRecords[i][uniqueFields[k]]);
-              record.push(currentDiffRecords[i][uniqueFields[k]]);
+              record.push(currentDiffRecords[j][uniqueFields[k]]);
             }
             
             record.push(diffRecords[i][displayFields[displayFields.length - 1]]);
