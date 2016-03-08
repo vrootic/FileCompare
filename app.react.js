@@ -214,7 +214,7 @@ var App = React.createClass({
 					currentWindow,
 					{
 						title: "Warning",
-						message: "沒有選取身分證字號欄位以供比對",
+						message: "沒有選取" + uniqueKey + "欄位以供比對",
 						type: "warning",
 						buttons: ["了解"],
 					},
@@ -372,7 +372,12 @@ var App = React.createClass({
 			ipc.send("compareAction", {
 				data: "100%"
 			});
-			
+
+			// for (var i = 0; i < diffRecords.length; i++) {
+			// 	console.log(JSON.stringify(diffRecords[i]));
+			// }
+
+			// return;
 			ipc.send("diffRecords", {
 				data: {
 					"uniqueKey": uniqueKey, 
