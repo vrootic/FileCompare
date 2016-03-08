@@ -38,53 +38,52 @@ var App = React.createClass({
       var diffRecords = this.state.diffRecords;
       var currentDiffRecords = this.state.currentDiffRecords;
       var uniqueFields = this.state.uniqueFields;
-      var displayRecords = [];
+      var displayRecords = {};
 
       for (var i = 0; i < diffRecords.length; i++) {
-        var record = [];
-        record.push(diffRecords[i][displayFields[0]]);
-        for (var k = 1; k < uniqueFields.length - 1; k++) {
-              record.push("");
-              record.push("");
+        if (displayRecords[diffRecords[i][uniqueKey]] == undefined) {
+          var record = [];
+          for (var j = 0; j < displayFields.length; j++) {
+            record.push(diffRecords[i][displayFields[j]]);
+          }
+          displayRecords[diffRecords[i][uniqueKey]] = record;
         }
-        record.push(diffRecords[i][displayFields[displayFields.length - 1]]);
-        displayRecords.push(record);
       }
 
       for (var i = 0; i < currentDiffRecords.length; i++) {
         var record = [];
-        record.push(currentDiffRecords[i][displayFields[0]]);
-        for (var k = 1; k < uniqueFields.length - 1; k++) {
-              record.push("");
-              record.push("");
+        if (displayRecords[currentDiffRecords[i][uniqueKey]] == undefined) {
+          for (var j = 0; j < displayFields.length; j++) {
+            record.push(currentDiffRecords[i][displayFields[j]]);
+          }
+          displayRecords[currentDiffRecords[i][uniqueKey]] = record;
         }
-        record.push(currentDiffRecords[i][displayFields[displayFields.length - 1]]);
-        displayRecords.push(record);
-      }
-
-      
-      for (var i = 0; i < diffRecords.length; i++) {
-        for (var j = 0; j < currentDiffRecords.length; j++) {
-          if (currentDiffRecords[j][uniqueKey] == diffRecords[i][uniqueKey]) {
-            
-
-            var record = [];
-            record.push(diffRecords[i][displayFields[0]]);
-            for (var k = 1; k < uniqueFields.length - 1; k++) {
-              record.push(diffRecords[i][uniqueFields[k]]);
-              record.push(currentDiffRecords[j][uniqueFields[k]]);
+        else {
+          for (var j = 0; j < diffRecords.length; j++) {
+            if (currentDiffRecords[i][uniqueKey] == diffRecords[j][uniqueKey]) {
+              record.push(currentDiffRecords[i][uniqueKey]);
+              for (var k = 1; k < uniqueFields.length - 1; k++) {
+                record.push(diffRecords[j][uniqueFields[k]]);
+                record.push(currentDiffRecords[i][uniqueFields[k]]);
+              }
+              
+              record.push(currentDiffRecords[i][displayFields[displayFields.length - 1]]);
+              displayRecords[currentDiffRecords[i][uniqueKey]] = record;
             }
-            
-            record.push(diffRecords[i][displayFields[displayFields.length - 1]]);
-            displayRecords.push(record);
           }
         }
       }
-      this.setState({displayRecords: displayRecords});
-      console.log(JSON.stringify(this.state.displayRecords));
+      var keys = Object.keys(displayRecords);
+      var resultRecords = [];
+      for (var i = 0; i < keys.length; i++) {
+        resultRecords.push(displayRecords[keys[i]]);
+      }
+
+      this.setState({displayRecords: resultRecords});
+      
       
     }.bind(this));
-
+    
     ipc.on("progress", function(args) {
       this.setState({progressBarStyle: {width: args.data}});
     }.bind(this));
