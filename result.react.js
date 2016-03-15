@@ -116,27 +116,29 @@ var App = React.createClass({
   exportCsv: function() {
     var csvContent = "";
     var fields = this.state.displayFields;
-    var data = this.state.diffRecords;
+    var data = this.state.displayRecords;
 
     var columnDelimiter = ",";
-    var lineDelimiter = "\n\r";
+    var lineDelimiter = "\n";
 
     csvContent += fields.join(columnDelimiter);
     csvContent += lineDelimiter;
 
-    data.forEach(function(item){
-      ctr = 0;
-      fields.forEach(function(field){
-        if (ctr > 0) {
+    data.map(function(item){
+      lineNumber = 0;
+      item.map(function(attr){
+        if (lineNumber > 0) {
           csvContent += columnDelimiter;
         }
-        cleanItemField = item[field].replace(',', '');
-        csvContent += cleanItemField;
-        ctr++;
+        attr = attr.replace(',', '');
+        csvContent += attr;
+        lineNumber++;
       });
       csvContent += lineDelimiter;
     });
+  
     console.log(csvContent);
+    
     filename = 'export.csv';
     data = "data:text/csv;charset=utf-8,\uFEFF" + encodeURIComponent(csvContent);
 
