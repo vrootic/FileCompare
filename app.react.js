@@ -373,8 +373,12 @@ var App = React.createClass({
 				data: "100%"
 			});
 
+			// console.log(JSON.stringify(diffRecords.length));
 			// for (var i = 0; i < diffRecords.length; i++) {
 			// 	console.log(JSON.stringify(diffRecords[i]));
+			// }
+			// for (var i = 0; i < currentDiffRecords.length; i++) {
+			// 	console.log(JSON.stringify(currentDiffRecords[i]));
 			// }
 
 			// return;

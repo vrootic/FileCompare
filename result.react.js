@@ -42,7 +42,12 @@ var App = React.createClass({
       var uniqueFields = this.state.uniqueFields;
       var displayRecords = {};
 
+
+      console.log(JSON.stringify(diffRecords.length));
+      console.log(JSON.stringify(diffRecords));
+
       for (var i = 0; i < diffRecords.length; i++) {
+        if (diffRecords[i] == null) { break; }
         if (displayRecords[diffRecords[i][uniqueKey]] == undefined) {
           var record = [];
           for (var j = 0; j < displayFields.length; j++) {
@@ -53,6 +58,7 @@ var App = React.createClass({
       }
 
       for (var i = 0; i < currentDiffRecords.length; i++) {
+        if (currentDiffRecords[i] == null) { break; }
         var record = [];
         if (displayRecords[currentDiffRecords[i][uniqueKey]] == undefined) {
           for (var j = 0; j < displayFields.length; j++) {
@@ -62,6 +68,7 @@ var App = React.createClass({
         }
         else {
           for (var j = 0; j < diffRecords.length; j++) {
+            if (diffRecords[j] == null) { break; }
             if (currentDiffRecords[i][uniqueKey] == diffRecords[j][uniqueKey]) {
               record.push(currentDiffRecords[i][uniqueKey]);
               for (var k = 1; k < uniqueFields.length - 1; k++) {
